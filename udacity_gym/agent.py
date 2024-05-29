@@ -1,5 +1,9 @@
 import pathlib
+import statistics
+import numpy as np
 import torchvision
+#import cv2
+#import albumentations as A
 
 from model.lane_keeping.dave.dave_model import Dave2
 # import pygame
@@ -87,6 +91,73 @@ class DaveUdacityAgent(UdacityAgent):
         input_image = torchvision.transforms.ToTensor()(observation.input_image)
 
         # Calculate steering angle
+        steering_angle = self.model(input_image).item()
+        # Calculate throttle
+        throttle = 1
+
+        return UdacityAction(steering_angle=steering_angle, throttle=throttle)
+    
+
+class DaveUdacityAgentWithDropout(UdacityAgent):
+
+    def __init__(self, checkpoint_path, before_action_callbacks=None, after_action_callbacks=None):
+        super().__init__(before_action_callbacks, after_action_callbacks)
+        self.checkpoint_path = pathlib.Path(checkpoint_path)
+        self.model = Dave2.load_from_checkpoint(self.checkpoint_path)
+        # TODO: I probably need to check where the model is
+
+    def action(self, observation: UdacityObservation, *args, **kwargs):
+
+        # Cast input to right shape
+        # input_image = torchvision.transforms.functional.pil_to_tensor(observation.input_image)
+        input_image = torchvision.transforms.ToTensor()(observation.input_image)
+
+        # Calculate steering angle
+        self.model.eval()
+        for m in self.model.modules():
+            if m.__class__.__name__.startswith('Dropout'):
+                m.train()
+        
+        N = 32
+        # make the predictions
+        predictions = []
+        for _ in range(N):
+            predictions.append(self.model(input_image).item())
+        
+        mean_value = statistics.mean(predictions)
+        variance_value = statistics.variance(predictions)
+
+        steering_angle = mean_value
+        # Calculate throttle
+        throttle = 1
+
+        return UdacityAction(steering_angle=steering_angle, throttle=throttle)
+    
+
+class DaveUdacityAgentWithAugmentation(UdacityAgent):
+
+    def __init__(self, checkpoint_path, before_action_callbacks=None, after_action_callbacks=None):
+        super().__init__(before_action_callbacks, after_action_callbacks)
+        self.checkpoint_path = pathlib.Path(checkpoint_path)
+        self.model = Dave2.load_from_checkpoint(self.checkpoint_path)
+        # TODO: I probably need to check where the model is
+
+    def action(self, observation: UdacityObservation, *args, **kwargs):
+
+        input_image = torchvision.transforms.ToTensor()(observation.input_image)
+
+        #image= np.array(observation.input_image)
+        #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        #transform = A.Compose([
+        #   A.Blur(p=0.2),
+        #])
+
+        #transformed = transform(image=image)
+        #transformed_image = transformed["image"]
+        #input_image = torchvision.transforms.ToTensor()(transformed_image)
+        self.model.eval()
+        
         steering_angle = self.model(input_image).item()
         # Calculate throttle
         throttle = 1

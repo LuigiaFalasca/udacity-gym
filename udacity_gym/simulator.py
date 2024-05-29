@@ -98,10 +98,10 @@ class UdacitySimulator:
 
     def start(self):
         # Start Unity simulation subprocess
-        self.logger.info("Starting Unity process for Udacity simulator...")
-        self.sim_process.start(
-            sim_path=self.simulator_exe_path, headless=False, port=self.port
-        )
+        #self.logger.info("Starting Unity process for Udacity simulator...")
+        #self.sim_process.start(
+        #    sim_path=self.simulator_exe_path, headless=False, port=self.port
+        #)
         self.sim_executor.start()
 
     def close(self):

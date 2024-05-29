@@ -10,7 +10,7 @@ if __name__ == '__main__':
     # Configuration settings
     host = "127.0.0.1"
     port = 4567
-    simulator_exe_path = "/home/banana/projects/self-driving-car-sim/Builds/udacity_linux.x86_64"
+    simulator_exe_path =  "/home/luigia/linux_build/Builds/udacity_linux.x86_64"
 
     # Track settings
     track = "lake"
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         time.sleep(1)
 
     log_observation_callback = LogObservationCallback(pathlib.Path("dataset2"))
-    agent = DaveUdacityAgent(checkpoint_path="dave2.ckpt",
+    agent = DaveUdacityAgent(checkpoint_path="/home/luigia/dave2.ckpt",
                             before_action_callbacks=[],
                             after_action_callbacks=[log_observation_callback])
 
