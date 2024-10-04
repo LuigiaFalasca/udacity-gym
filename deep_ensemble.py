@@ -77,7 +77,7 @@ if __name__ == '__main__':
     '''
     
     # Interacting with the gym environment
-    for _ in tqdm.tqdm(range(200)):
+    for _ in tqdm.tqdm(range(20)):
         actions=[]
 
         for agent in agents:
@@ -90,6 +90,7 @@ if __name__ == '__main__':
             steering_angles.append(action.steering_angle)
             throttles.append(action.throttle)
         
+        print(steering_angles)
 
         final_steering_angle= statistics.mean(steering_angles)
         final_throttle= statistics.mean(throttles)
